@@ -1,0 +1,58 @@
+{
+  "name": "TravelTrackerCompanion Legal & Documentation",
+  "domain": "traveltrackercompanion.github.io",
+  "basePath": "/traveltrackercompanion-web",
+  "locales": [
+    "en", "ar", "de", "es", "fr", "hi", "id", "it", "ja", "ko", "pl", "pt", "ru", "th", "tr", "ur", "vi", "zh"
+  ],
+  "documents": {
+    "privacy": {
+      "id": "privacy",
+      "version": "2.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/privacy/"
+    },
+    "terms": {
+      "id": "terms",
+      "version": "2.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/terms/"
+    },
+    "refunds": {
+      "id": "refunds",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/refunds/"
+    },
+    "subscriptions": {
+      "id": "subscriptions",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/subscriptions/"
+    },
+    "account-deletion": {
+      "id": "account-deletion",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/account-deletion/"
+    },
+    "data-export": {
+      "id": "data-export",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/data-export/"
+    },
+    "licenses": {
+      "id": "licenses",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/licenses/"
+    },
+    "about": {
+      "id": "about",
+      "version": "1.0",
+      "effectiveDate": "2026-10-05",
+      "path": "/{lang}/about/"
+    }
+  }
+}

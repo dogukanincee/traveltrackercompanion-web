@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelTrackerCompanion — Legal &amp; Public Documentation</title>
+    <meta name="description" content="Centralized legal, privacy, terms, refund, and documentation hub for TravelTrackerCompanion.">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        (function() {
+            var knownLocales = ['en','ar','de','es','fr','hi','id','it','ja','ko','pl','pt','ru','th','tr','ur','vi','zh'];
+            var userLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+            var targetLang = 'en';
+            for (var i = 0; i < knownLocales.length; i++) {
+                if (userLang.indexOf(knownLocales[i]) === 0) {
+                    targetLang = knownLocales[i];
+                    break;
+                }
+            }
+            window.location.replace('./' + targetLang + '/');
+        })();
+    </script>
+</head>
+<body>
+    <main>
+        <div class="doc-card">
+            <h1>TravelTrackerCompanion Documentation</h1>
+            <p>Redirecting to your preferred language...</p>
+            <p>If you are not redirected, please select a language:</p>
+            <ul>
+                <li><a href="en/">English</a></li>
+                <li><a href="de/">Deutsch</a></li>
+                <li><a href="es/">Español</a></li>
+                <li><a href="fr/">Français</a></li>
+                <li><a href="tr/">Türkçe</a></li>
+                <li><a href="ar/">العربية</a></li>
+                <li><a href="zh/">中文</a></li>
+            </ul>
+        </div>
+    </main>
+</body>
+</html>

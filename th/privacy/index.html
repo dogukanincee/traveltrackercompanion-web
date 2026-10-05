@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — TravelTrackerCompanion</title>
+    <meta name="description" content="Privacy Policy for TravelTrackerCompanion. Explains local-first storage, encryption, and zero cloud tracking defaults.">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/lang-switch.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="../" class="brand">
+                <div class="brand-icon">T</div>
+                <span>TravelTrackerCompanion</span>
+            </a>
+            <nav>
+                <select id="langSelect" class="lang-select" aria-label="Select Language">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                    <option value="de">Deutsch</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="it">Italiano</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="pl">Polski</option>
+                    <option value="pt">Português (Brasil)</option>
+                    <option value="ru">Русский</option>
+                    <option value="th" selected>ไทย</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="ur">اردو</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="zh">中文</option>
+                </select>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-card">
+            <h1>Privacy Policy</h1>
+            <div class="doc-meta">
+                <span class="doc-badge">Version 2.0</span>
+                <span><strong>Effective Date:</strong> October 5, 2026</span>
+                <span><strong>GDPR &amp; CCPA Compliant</strong></span>
+            </div>
+
+            <h2>1. Privacy-First Architecture</h2>
+            <p>TravelTrackerCompanion ("the App", "we", "us") is engineered around a local-first, privacy-by-design philosophy. Your personal travel history, expense ledgers, logbook notes, and vault documents remain stored locally on your physical device by default.</p>
+
+            <h2>2. Information We Handle</h2>
+            <h3>2.1 Trip Data &amp; Documents</h3>
+            <p>All trips, checklists, notes, expenses, and document vault items are stored in encrypted local databases (SQLDelight) and platform Keychains (iOS Keychain / Android Keystore with AES-256). We do not collect or monitor your trip contents.</p>
+
+            <h3>2.2 In-App Purchases &amp; Subscriptions</h3>
+            <p>Transactions are processed directly by Apple App Store or Google Play Store. We receive only non-sensitive entitlement tokens and transaction identifiers required to unlock Premium features.</p>
+
+            <h3>2.3 Diagnostic Data &amp; Crash Reports</h3>
+            <p>If you explicitly enable crash reporting in Settings, anonymous technical diagnostic telemetry (crash stack traces, OS version, device model) is sent to Firebase Crashlytics and Sentry SDK to improve app stability. Diagnostic data contains no trip details or personal credentials.</p>
+
+            <h2>3. Third-Party Service Requests</h2>
+            <p>To provide real-time travel context, the App sends minimal query text (such as flight numbers or city names) directly to external travel providers:</p>
+            <ul>
+                <li><strong>OpenSky Network / AeroDataBox:</strong> Flight position queries</li>
+                <li><strong>Open-Meteo:</strong> Weather forecasts</li>
+                <li><strong>ExchangeRate-API:</strong> Currency exchange conversions</li>
+                <li><strong>geoBoundaries:</strong> Country boundary geometry data</li>
+                <li><strong>Pexels API:</strong> Destination photography</li>
+            </ul>
+
+            <h2>4. Data Rights &amp; Retention</h2>
+            <p>Because your data resides on your device, deleting a trip or uninstalling the App permanently removes your local records. You can export your data at any time via the in-app Data Export feature.</p>
+
+            <h2>5. Contact Information</h2>
+            <p>For privacy inquiries, contact us at <code>privacy@traveltrackercompanion.app</code>.</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="../privacy/">Privacy Policy</a>
+            <a href="../terms/">Terms of Service</a>
+            <a href="../refunds/">Refund Policy</a>
+            <a href="../subscriptions/">Subscriptions</a>
+            <a href="../account-deletion/">Account Deletion</a>
+            <a href="../data-export/">Data Export</a>
+            <a href="../licenses/">Open Source</a>
+            <a href="../about/">About</a>
+        </div>
+        <p>&copy; 2026 Travel Tracker Companion Studio. All rights reserved.</p>
+    </footer>
+</body>
+</html>
