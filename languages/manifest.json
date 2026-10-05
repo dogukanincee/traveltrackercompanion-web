@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "defaultLocale": "en",
+  "generatedAt": "2026-10-05T15:17:12.987928+00:00",
+  "languages": {
+    "ar": {
+      "languageTag": "ar",
+      "displayName": "العربية",
+      "version": 1,
+      "sizeBytes": 190173,
+      "sha256": "73329c79483a6cf3c6fbd27a56e38431db0dc55f81a87d73ee1a1682b885e2ec",
+      "packPath": "packs/ar/pack.json"
+    },
+    "de": {
+      "languageTag": "de",
+      "displayName": "Deutsch",
+      "version": 1,
+      "sizeBytes": 164995,
+      "sha256": "71e60cd937eec7f0295598df29fa927402aa655e14548a39bdd0e89a98aead5f",
+      "packPath": "packs/de/pack.json"
+    },
+    "es": {
+      "languageTag": "es",
+      "displayName": "Español",
+      "version": 1,
+      "sizeBytes": 165091,
+      "sha256": "f4f8775a0da9d219a3811dc06a5df967d5735a91f802682ac95fa2190dacc03d",
+      "packPath": "packs/es/pack.json"
+    },
+    "fr": {
+      "languageTag": "fr",
+      "displayName": "Français",
+      "version": 1,
+      "sizeBytes": 171044,
+      "sha256": "155265ceac01f1693f6df7824dbf758cdcccf8beedd22dbe5fbcc224c6cedd75",
+      "packPath": "packs/fr/pack.json"
+    },
+    "hi": {
+      "languageTag": "hi",
+      "displayName": "हिन्दी",
+      "version": 1,
+      "sizeBytes": 252842,
+      "sha256": "874128f4f9f1ed339ef116641cdcff9491289be8c6f2d18e6725f93c6be15b7c",
+      "packPath": "packs/hi/pack.json"
+    },
+    "id": {
+      "languageTag": "id",
+      "displayName": "Bahasa Indonesia",
+      "version": 1,
+      "sizeBytes": 153061,
+      "sha256": "1c75d33b484a13dd423e86840d1fd987622cf9c5c5c5fc1f5b2df06a1fd1fd66",
+      "packPath": "packs/id/pack.json"
+    },
+    "it": {
+      "languageTag": "it",
+      "displayName": "Italiano",
+      "version": 1,
+      "sizeBytes": 154061,
+      "sha256": "1ef1f3c4609e6f2795a237cca93e21b29dc17fc91c8fc478fe283aa669b8954b",
+      "packPath": "packs/it/pack.json"
+    },
+    "ja": {
+      "languageTag": "ja",
+      "displayName": "日本語",
+      "version": 1,
+      "sizeBytes": 185304,
+      "sha256": "286069ffee7b1982b5b9e501a4142b37dabe25ef6b0467c96c95c5b9a5dcd0e0",
+      "packPath": "packs/ja/pack.json"
+    },
+    "ko": {
+      "languageTag": "ko",
+      "displayName": "한국어",
+      "version": 1,
+      "sizeBytes": 166542,
+      "sha256": "5fafcf403158e8ff427e683fca4a9c1b39bd5c91e71f505a85d5223dcc44cb5d",
+      "packPath": "packs/ko/pack.json"
+    },
+    "pl": {
+      "languageTag": "pl",
+      "displayName": "Polski",
+      "version": 1,
+      "sizeBytes": 164749,
+      "sha256": "16c121b2f9f7507af4af5e05d4be743dc2ba7893adf0316bc6ee3164f2c615ad",
+      "packPath": "packs/pl/pack.json"
+    },
+    "pt-rBR": {
+      "languageTag": "pt-rBR",
+      "displayName": "Português (Brasil)",
+      "version": 1,
+      "sizeBytes": 164176,
+      "sha256": "45d0a042461b07e96d94072ef6738ead47f0f085de1c6199e08ff2fb51ad9ec3",
+      "packPath": "packs/pt-rBR/pack.json"
+    },
+    "ru": {
+      "languageTag": "ru",
+      "displayName": "Русский",
+      "version": 1,
+      "sizeBytes": 180052,
+      "sha256": "38bdd44321409ff6406afc73aa3b8079581f59872913337ef7b7411af473ea1f",
+      "packPath": "packs/ru/pack.json"
+    },
+    "th": {
+      "languageTag": "th",
+      "displayName": "ไทย",
+      "version": 1,
+      "sizeBytes": 192764,
+      "sha256": "19c0cd66a19af73a2d4f6558e6f0ef966a31d92fa2d62d4140872366ffe3fef8",
+      "packPath": "packs/th/pack.json"
+    },
+    "tr": {
+      "languageTag": "tr",
+      "displayName": "Türkçe",
+      "version": 1,
+      "sizeBytes": 152904,
+      "sha256": "005484602170b5fbd5548df5f9b452da712b4c89a28c935d0db22572f340362f",
+      "packPath": "packs/tr/pack.json"
+    },
+    "ur": {
+      "languageTag": "ur",
+      "displayName": "اردو",
+      "version": 1,
+      "sizeBytes": 172577,
+      "sha256": "1fd61b3e1fc36a700c49817c933b97280501f8e02902ef07907cc4b1bb5a06ee",
+      "packPath": "packs/ur/pack.json"
+    },
+    "vi": {
+      "languageTag": "vi",
+      "displayName": "Tiếng Việt",
+      "version": 1,
+      "sizeBytes": 161205,
+      "sha256": "126d1cc7f67b734f961870286647c6e2e57b1a586a05b7a6ff55bb9946cf9bb1",
+      "packPath": "packs/vi/pack.json"
+    },
+    "zh": {
+      "languageTag": "zh",
+      "displayName": "中文",
+      "version": 1,
+      "sizeBytes": 147810,
+      "sha256": "c942cb860a1ee7f483082aeca2a8f2715fee61c2c41b0f68a139321087c65949",
+      "packPath": "packs/zh/pack.json"
+    }
+  }
+}
