@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Cities — Living Travel Globe</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #030712;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+</style>
+</head>
+<body class="w-full h-full bg-[#030712] text-slate-100 overflow-hidden select-none font-sans flex items-center justify-center">
+<div class="w-full h-full relative overflow-hidden bg-[#030712] font-['Plus_Jakarta_Sans'] select-none shadow-2xl" id="globe-root">
+<div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_48%,rgba(14,116,144,0.18),transparent_65%)] z-0"></div>
+<div class="absolute inset-0 w-full h-full overflow-hidden" id="globe-stage">
+<canvas class="absolute inset-0 w-full h-full z-0 touch-none pointer-events-auto" id="globe-canvas" style="touch-action: none;"></canvas>
+<div id="threejs-container-globe" style="width:100%;height:100%"></div>
+<svg class="absolute inset-0 w-full h-full z-[5] pointer-events-none" id="globe-leader-svg"></svg>
+<div class="absolute inset-0 w-full h-full z-10 pointer-events-none" id="globe-labels-overlay"></div>
+</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<script>
+(function() {
+    let CITIES_DATA = [
+      { id: 'london', name: 'London', trips: 18, isHome: true, lat: 51.5074, lon: -0.1278 },
+      { id: 'barcelona', name: 'Barcelona', trips: 6, isHome: false, lat: 41.3879, lon: 2.1699 },
+      { id: 'tokyo', name: 'Tokyo', trips: 5, isHome: false, lat: 35.6762, lon: 139.6503 },
+      { id: 'istanbul', name: 'Istanbul', trips: 5, isHome: false, lat: 41.0082, lon: 28.9784 },
+      { id: 'paris', name: 'Paris', trips: 4, isHome: false, lat: 48.8566, lon: 2.3522 },
+      { id: 'florence', name: 'Florence', trips: 4, isHome: false, lat: 43.7696, lon: 11.2558 },
+      { id: 'rome', name: 'Rome', trips: 3, isHome: false, lat: 41.9028, lon: 12.4964 },
+      { id: 'moscow', name: 'Moscow', trips: 3, isHome: false, lat: 55.7558, lon: 37.6173 },
+      { id: 'nyc', name: 'New York', trips: 3, isHome: false, lat: 40.7128, lon: -74.0060 },
+      { id: 'amsterdam', name: 'Amsterdam', trips: 2, isHome: false, lat: 52.3676, lon: 4.9041 },
+      { id: 'athens', name: 'Athens', trips: 2, isHome: false, lat: 37.9838, lon: 23.7275 },
+      { id: 'ibiza', name: 'Ibiza', trips: 1, isHome: false, lat: 38.9067, lon: 1.4206 }
+    ];
+
+    let ROUTES_DATA = [
+      { id: 'lon-bcn', from: 'london', to: 'barcelona', trips: 6, type: 'plane', years: [2021, 2022, 2023, 2024], transportDetail: 'Flight' },
+      { id: 'lon-par', from: 'london', to: 'paris', trips: 4, type: 'train', years: [2021, 2022, 2023], transportDetail: 'Rail · Channel Tunnel corridor' },
+      { id: 'bcn-rom', from: 'barcelona', to: 'rome', trips: 3, type: 'plane', years: [2022, 2023, 2024], transportDetail: 'Flight' },
+      { id: 'flr-rom', from: 'florence', to: 'rome', trips: 3, type: 'train', years: [2022, 2023, 2024], transportDetail: 'Rail' },
+      { id: 'lon-ams', from: 'london', to: 'amsterdam', trips: 2, type: 'train', years: [2022, 2023], transportDetail: 'Rail' },
+      { id: 'bcn-ibz', from: 'barcelona', to: 'ibiza', trips: 1, type: 'ship', years: [2024], transportDetail: 'Ferry' },
+      { id: 'ist-mow', from: 'istanbul', to: 'moscow', trips: 3, type: 'plane', years: [2022, 2023], transportDetail: 'Flight' },
+      { id: 'ist-ath', from: 'istanbul', to: 'athens', trips: 2, type: 'plane', years: [2023, 2024], transportDetail: 'Flight' },
+      { id: 'lon-tyo', from: 'london', to: 'tokyo', trips: 5, type: 'plane', years: [2023, 2024], transportDetail: 'Flight' },
+      { id: 'lon-nyc', from: 'london', to: 'nyc', trips: 3, type: 'plane', years: [2022, 2023], transportDetail: 'Flight' }
+    ];
+
+    let selectedCityId = null;
+    let activeFilter = 'all';
+    let selectedYear = null;
+
+    const stage = document.getElementById('globe-stage');
+    const canvas = document.getElementById('globe-canvas');
+    const labelsOverlay = document.getElementById('globe-labels-overlay');
+    const svgOverlay = document.getElementById('globe-leader-svg');
+
+    if (!stage || !canvas || !labelsOverlay) return;
+
+    const cityMap = {};
+    function processCitiesData() {
+        CITIES_DATA.forEach(c => {
+            cityMap[c.id] = c;
+            c.screenX = 0;
+            c.screenY = 0;
+            c.isFront = true;
+            c.dot = 1;
+        });
+    }
+    processCitiesData();
+
+    // 2. SCENE, PERSPECTIVE CAMERA & CANONICAL RENDERER
+    const width = stage.clientWidth || window.innerWidth || 393;
+    const height = stage.clientHeight || window.innerHeight || 852;
+
+    const scene = new THREE.Scene();
+
+    const GLOBE_R = 50;
+    const DEFAULT_CAM_DIST = 265;
+    const MIN_CAM_DIST = 145;
+    const MAX_CAM_DIST = 380;
+    let targetCamDist = DEFAULT_CAM_DIST;
+
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 1200);
+    camera.position.set(0, 0, DEFAULT_CAM_DIST);
+
+    const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.14;
+
+    // Atmospheric lighting
+    const ambientLight = new THREE.AmbientLight(0x162232, 1.45);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffaee, 2.75);
+    sunLight.position.set(150, 95, 130);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+    rimLight.position.set(-160, -40, -110);
+    scene.add(rimLight);
+
+    const earthGroup = new THREE.Group();
+    scene.add(earthGroup);
+
+    const DEFAULT_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, -0.30, 0, 'YXZ'));
+    earthGroup.quaternion.copy(DEFAULT_QUAT);
+
+    // 3. PHOTOREALISTIC BLUE MARBLE EARTH (128x128 SPHERE)
+    const textureLoader = new THREE.TextureLoader();
+    const earthGeo = new THREE.SphereGeometry(GLOBE_R, 128, 128);
+
+    const earthMat = new THREE.MeshPhongMaterial({
+        color: 0x132a40,
+        specular: 0x38bdf8,
+        shininess: 24,
+        bumpScale: 0.8
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    earthGroup.add(earthMesh);
+
+    // Blue Marble Map Texture
+    const blueMarbleUrl = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
+    textureLoader.load(blueMarbleUrl, (tex) => {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.ClampToEdgeWrapping;
+        earthMat.map = tex;
+        earthMat.color.setHex(0xffffff);
+        earthMat.needsUpdate = true;
+    });
+
+    // Cloud Layer
+    const cloudGeo = new THREE.SphereGeometry(GLOBE_R * 1.009, 64, 64);
+    const cloudMat = new THREE.MeshPhongMaterial({
+        transparent: true,
+        opacity: 0.17,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    earthGroup.add(cloudMesh);
+
+    const cloudMapUrl = 'https://unpkg.com/three-globe/example/img/clouds.png';
+    textureLoader.load(cloudMapUrl, (cTex) => {
+        cTex.wrapS = THREE.RepeatWrapping;
+        cTex.wrapT = THREE.ClampToEdgeWrapping;
+        cloudMat.map = cTex;
+        cloudMat.needsUpdate = true;
+    });
+
+    // Atmospheric Rim Glow
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_R * 1.018, 64, 64);
+    const atmosMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.11,
+        side: THREE.BackSide
+    });
+    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+    earthGroup.add(atmosMesh);
+
+    // Exact geographic spherical mapping
+    function latLonToVector3(lat, lon, r) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+            -r * Math.sin(phi) * Math.cos(theta),
+            r * Math.cos(phi),
+            r * Math.sin(phi) * Math.sin(theta)
+        );
+    }
+
+    function updateCityWorldPositions() {
+        CITIES_DATA.forEach(c => {
+            c.worldPos = latLonToVector3(c.lat, c.lon, GLOBE_R);
+        });
+    }
+    updateCityWorldPositions();
+
+    // 4. ZOOM SCALE MODEL
+    function getZoomVisualScale() {
+        const normalized = THREE.MathUtils.clamp((camera.position.z - MIN_CAM_DIST) / (MAX_CAM_DIST - MIN_CAM_DIST), 0, 1);
+        const closeness = 1 - normalized;
+        return { normalized, closeness };
+    }
+
+    function getCityMarkerScale() { return THREE.MathUtils.lerp(1.0, 0.58, getZoomVisualScale().closeness); }
+    function getCityLabelScale() { return THREE.MathUtils.lerp(1.0, 0.78, getZoomVisualScale().closeness); }
+    function getCityLabelSpacing() { return THREE.MathUtils.lerp(46, 64, getZoomVisualScale().closeness); }
+    function getMaxVisibleLabels() {
+        const { closeness } = getZoomVisualScale();
+        if (closeness <= 0.48) return 6;
+        if (closeness <= 0.78) return 4;
+        return 3;
+    }
+
+    // 5. TRANSIT CORRIDORS & VEHICLES
+    const routesGroup = new THREE.Group();
+    earthGroup.add(routesGroup);
+    const vehicleGroup = new THREE.Group();
+    earthGroup.add(vehicleGroup);
+
+    const routeEntities = [];
+    const animatedVehicles = [];
+
+    class SphericalGreatCircleCurve extends THREE.Curve {
+        constructor(p1, p2, maxAltitude) {
+            super();
+            this.v1 = p1.clone().normalize();
+            this.v2 = p2.clone().normalize();
+            this.angle = this.v1.angleTo(this.v2);
+            this.maxAlt = maxAltitude;
+        }
+        getPoint(t, optionalTarget = new THREE.Vector3()) {
+            const point = optionalTarget;
+            if (this.angle < 0.001) { point.copy(this.v1); }
+            else {
+                const sinTotal = Math.sin(this.angle);
+                const w1 = Math.sin((1 - t) * this.angle) / sinTotal;
+                const w2 = Math.sin(t * this.angle) / sinTotal;
+                point.addScaledVector(this.v1, w1).addScaledVector(this.v2, w2).normalize();
+            }
+            const arc = Math.sin(t * Math.PI) * this.maxAlt;
+            point.multiplyScalar(GLOBE_R + arc);
+            return point;
+        }
+    }
+
+    function buildRoutesGeometry() {
+        routesGroup.clear();
+        vehicleGroup.clear();
+        routeEntities.length = 0;
+        animatedVehicles.length = 0;
+
+        ROUTES_DATA.forEach((route, idx) => {
+            const c1 = cityMap[route.from];
+            const c2 = cityMap[route.to];
+            if (!c1 || !c2) return;
+
+            const start = c1.worldPos.clone();
+            const end = c2.worldPos.clone();
+            const dist = start.distanceTo(end);
+
+            const maxAlt = Math.min(10.0, 1.6 + dist * 0.08);
+            const curve = new SphericalGreatCircleCurve(start, end, maxAlt);
+            const pts = curve.getPoints(46);
+            const geo = new THREE.BufferGeometry().setFromPoints(pts);
+
+            const arcColor = route.type === 'plane' ? 0x7dd3fc : (route.type === 'train' ? 0xf87171 : (route.type === 'ship' ? 0x06b6d4 : 0xf59e0b));
+            const mainMat = new THREE.LineBasicMaterial({ color: arcColor, transparent: true, opacity: 0.40 });
+            const visualMesh = new THREE.Line(geo, mainMat);
+
+            routesGroup.add(visualMesh);
+            routeEntities.push({ id: route.id, data: route, curve: curve, mesh: visualMesh });
+        });
+    }
+    buildRoutesGeometry();
+
+    // 6. DOM CITY ANNOTATIONS & COLLISION ENGINE
+    const cityElements = {};
+    labelsOverlay.innerHTML = '';
+
+    function rebuildCityDOMElements() {
+        labelsOverlay.innerHTML = '';
+        CITIES_DATA.forEach(city => {
+            const el = document.createElement('div');
+            el.id = 'city-node-' + city.id;
+            el.className = 'city-hit-target absolute pointer-events-auto transform -translate-x-1/2 -translate-y-1/2 select-none flex items-center justify-center cursor-pointer transition-[opacity] duration-150';
+            el.style.width = '44px';
+            el.style.height = '44px';
+
+            const homeBadge = city.isHome ? '<span class="text-[9px] text-sky-400 mr-0.5">⌂</span>' : '';
+            el.innerHTML = `
+                <div class="city-annotation flex items-center pointer-events-none origin-left">
+                    <div class="marker-container relative flex items-center justify-center shrink-0" style="width: 14px; height: 14px;">
+                        <div class="marker-dot rounded-full ${city.isHome ? 'bg-sky-300 shadow-[0_0_6px_rgba(56,189,248,0.8)]' : 'bg-slate-200/90 shadow-[0_0_3px_rgba(255,255,255,0.6)]'}"></div>
+                    </div>
+                    <div class="label-tag ml-1 whitespace-nowrap font-sans font-medium text-slate-200 tracking-wide transition-all" style="text-shadow: 0 1px 3px rgba(0,0,0,0.9);">
+                        ${homeBadge}${city.name}
+                    </div>
+                </div>
+            `;
+
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectCity(city);
+            });
+
+            labelsOverlay.appendChild(el);
+            cityElements[city.id] = el;
+        });
+    }
+    rebuildCityDOMElements();
+
+    function updateCityLabelsAndMarkers() {
+        const ow = labelsOverlay.clientWidth || width;
+        const oh = labelsOverlay.clientHeight || height;
+
+        const baseMarkerScale = getCityMarkerScale();
+        const baseLabelScale = getCityLabelScale();
+        const collisionSpacing = getCityLabelSpacing();
+        const maxLabels = getMaxVisibleLabels();
+
+        const visibleCandidates = [];
+
+        CITIES_DATA.forEach(city => {
+            const el = cityElements[city.id];
+            if (!el) return;
+
+            const worldPos = city.worldPos.clone().applyQuaternion(earthGroup.quaternion);
+            const normal = worldPos.clone().normalize();
+            const toCam = camera.position.clone().sub(worldPos).normalize();
+            const dot = normal.dot(toCam);
+
+            const isPrimarySelected = city.id === selectedCityId;
+            city.dot = dot;
+            city.isFront = (dot >= 0.05) || isPrimarySelected;
+
+            if (!city.isFront) {
+                el.style.display = 'none';
+                return;
+            }
+
+            el.style.display = 'flex';
+            const screenPos = worldPos.clone().project(camera);
+            const x = (screenPos.x * 0.5 + 0.5) * ow;
+            const y = (-screenPos.y * 0.5 + 0.5) * oh;
+
+            city.screenX = x; city.screenY = y;
+            el.style.left = x.toFixed(1) + 'px';
+            el.style.top = y.toFixed(1) + 'px';
+            el.style.zIndex = isPrimarySelected ? '50' : '20';
+
+            const markerContainer = el.querySelector('.marker-container');
+            const labelTag = el.querySelector('.label-tag');
+
+            if (markerContainer) {
+                const effectiveScale = isPrimarySelected ? baseMarkerScale * 1.3 : baseMarkerScale;
+                markerContainer.style.transform = `scale(${effectiveScale.toFixed(3)})`;
+            }
+
+            if (labelTag) {
+                labelTag.style.fontSize = (9.5 * baseLabelScale).toFixed(1) + 'px';
+            }
+
+            const approxTextWidth = (city.name.length + 2) * 5.8 * baseLabelScale;
+            visibleCandidates.push({
+                city: city,
+                x: x, y: y,
+                textWidth: approxTextWidth,
+                textHeight: 13 * baseLabelScale,
+                labelTag: labelTag,
+                isPrimarySelected: isPrimarySelected,
+                isHome: city.isHome,
+                trips: city.trips || 1
+            });
+        });
+
+        visibleCandidates.sort((a, b) => {
+            if (a.isPrimarySelected) return -1;
+            if (b.isPrimarySelected) return 1;
+            if (a.isHome) return -1;
+            if (b.isHome) return 1;
+            return b.trips - a.trips;
+        });
+
+        const acceptedLabelBoxes = [];
+        let labelCount = 0;
+        const pad = collisionSpacing * 0.28;
+
+        visibleCandidates.forEach(cand => {
+            const box = {
+                left: cand.x + 8 - pad,
+                right: cand.x + 8 + cand.textWidth + pad,
+                top: cand.y - cand.textHeight / 2 - pad,
+                bottom: cand.y + cand.textHeight / 2 + pad,
+                anchorX: cand.x, anchorY: cand.y
+            };
+
+            if (cand.isPrimarySelected) {
+                if (cand.labelTag) cand.labelTag.style.display = 'block';
+                acceptedLabelBoxes.push(box);
+                labelCount++;
+                return;
+            }
+
+            if (labelCount >= maxLabels) {
+                if (cand.labelTag) cand.labelTag.style.display = 'none';
+                return;
+            }
+
+            let hasOverlap = false;
+            for (let accepted of acceptedLabelBoxes) {
+                const overlapX = !(box.left > accepted.right || box.right < accepted.left);
+                const overlapY = !(box.top > accepted.bottom || box.bottom < accepted.top);
+                if (overlapX && overlapY) { hasOverlap = true; break; }
+                const anchorDist = Math.hypot(cand.x - accepted.anchorX, cand.y - accepted.anchorY);
+                if (anchorDist < collisionSpacing) { hasOverlap = true; break; }
+            }
+
+            if (hasOverlap) {
+                if (cand.labelTag) cand.labelTag.style.display = 'none';
+            } else {
+                if (cand.labelTag) cand.labelTag.style.display = 'block';
+                acceptedLabelBoxes.push(box);
+                labelCount++;
+            }
+        });
+    }
+
+    // 7. TOUCH & POINTER CONTROLS
+    let activePointers = new Map();
+    let isDragging = false;
+    let dragStartPos = { x: 0, y: 0 };
+    let lastPointerPos = { x: 0, y: 0 };
+
+    function onPointerDown(e) {
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (activePointers.size === 1) {
+            isDragging = true;
+            dragStartPos = { x: e.clientX, y: e.clientY };
+            lastPointerPos = { x: e.clientX, y: e.clientY };
+        }
+    }
+
+    function onPointerMove(e) {
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (isDragging && activePointers.size === 1) {
+            const dx = e.clientX - lastPointerPos.x;
+            const dy = e.clientY - lastPointerPos.y;
+            const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.0055);
+            const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.0055);
+            earthGroup.quaternion.premultiply(qX);
+            earthGroup.quaternion.premultiply(qY);
+            lastPointerPos = { x: e.clientX, y: e.clientY };
+        }
+    }
+
+    function onPointerUp(e) {
+        activePointers.delete(e.pointerId);
+        if (isDragging && activePointers.size === 0) {
+            isDragging = false;
+            const distMoved = Math.hypot(e.clientX - dragStartPos.x, e.clientY - dragStartPos.y);
+            if (distMoved < 7) {
+                handleTap(e.clientX, e.clientY);
+            }
+        }
+    }
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+
+    function handleTap(cx, cy) {
+        let closestCity = null;
+        let minDist = 26;
+        CITIES_DATA.forEach(city => {
+            if (!city.isFront) return;
+            const dist = Math.hypot(cx - city.screenX, cy - city.screenY);
+            if (dist < minDist) {
+                minDist = dist;
+                closestCity = city;
+            }
+        });
+        if (closestCity) {
+            selectCity(closestCity);
+        }
+    }
+
+    function selectCity(city) {
+        selectedCityId = city.id;
+        notifyNativeCityClicked(city.id);
+    }
+
+    function notifyNativeCityClicked(cityId) {
+        if (window.LivingGlobeBridge && typeof window.LivingGlobeBridge.onCitySelected === 'function') {
+            window.LivingGlobeBridge.onCitySelected(cityId);
+        } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.livingGlobe) {
+            window.webkit.messageHandlers.livingGlobe.postMessage({ type: 'cityClick', id: cityId });
+        }
+    }
+
+    // 8. RENDER LOOP
+    function animate() {
+        requestAnimationFrame(animate);
+        camera.position.z += (targetCamDist - camera.position.z) * 0.12;
+        if (!isDragging) {
+            const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0.001);
+            earthGroup.quaternion.premultiply(qY);
+        }
+        updateCityLabelsAndMarkers();
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.updateLivingGlobeData = function(cities, routes, selectedId, filter, year) {
+        CITIES_DATA = cities;
+        ROUTES_DATA = routes;
+        selectedCityId = selectedId;
+        activeFilter = filter;
+        selectedYear = year;
+        processCitiesData();
+        updateCityWorldPositions();
+        rebuildCityDOMElements();
+        buildRoutesGeometry();
+    };
+})();
+</script>
+</body>
+</html>
